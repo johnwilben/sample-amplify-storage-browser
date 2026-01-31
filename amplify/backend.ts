@@ -36,12 +36,7 @@ backend.addOutput({
         aws_region: "us-east-1",
         //@ts-expect-error amplify backend type issue https://github.com/aws-amplify/amplify-backend/issues/2569
         paths: {
-          "public/*": {
-            guest: ["get", "list"],
-            authenticated: ["get", "list", "write", "delete"],
-          },
-          "admin/*": {
-            groupsadmin: ["get", "list", "write", "delete"],
+          "*": {
             authenticated: ["get", "list", "write", "delete"],
           },
         },
@@ -56,21 +51,7 @@ backend.addOutput({
  */
 const unauthPolicy = new Policy(backend.stack, "customBucketUnauthPolicy", {
   statements: [
-    new PolicyStatement({
-      effect: Effect.ALLOW,
-      actions: ["s3:GetObject"],
-      resources: [`arn:aws:s3:::${customBucketName}/public/*`],
-    }),
-    new PolicyStatement({
-      effect: Effect.ALLOW,
-      actions: ["s3:ListBucket"],
-      resources: [`arn:aws:s3:::${customBucketName}`],
-      conditions: {
-        StringLike: {
-          "s3:prefix": ["public/*", "public/"],
-        },
-      },
-    }),
+    // No permissions for unauthenticated users
   ],
 });
 
@@ -84,8 +65,7 @@ const authPolicy = new Policy(backend.stack, "customBucketAuthPolicy", {
       effect: Effect.ALLOW,
       actions: ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
       resources: [
-        `arn:aws:s3:::${customBucketName}/public/*`,
-        `arn:aws:s3:::${customBucketName}/admin/*`,
+        `arn:aws:s3:::${customBucketName}/*`,
       ],
     }),
     new PolicyStatement({
@@ -95,11 +75,6 @@ const authPolicy = new Policy(backend.stack, "customBucketAuthPolicy", {
         `arn:aws:s3:::${customBucketName}`,
         `arn:aws:s3:::${customBucketName}/*`,
       ],
-      conditions: {
-        StringLike: {
-          "s3:prefix": ["public/*", "public/", "admin/*", "admin/"],
-        },
-      },
     }),
   ],
 });
