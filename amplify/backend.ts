@@ -51,7 +51,11 @@ backend.addOutput({
  */
 const unauthPolicy = new Policy(backend.stack, "customBucketUnauthPolicy", {
   statements: [
-    // No permissions for unauthenticated users
+    new PolicyStatement({
+      effect: Effect.DENY,
+      actions: ["s3:*"],
+      resources: ["*"],
+    }),
   ],
 });
 
