@@ -34,7 +34,6 @@ backend.addOutput({
         name: customBucketName,
         bucket_name: customBucketName,
         aws_region: "us-east-1",
-        //@ts-expect-error amplify backend type issue https://github.com/aws-amplify/amplify-backend/issues/2569
         paths: {
           "*": {
             authenticated: ["get", "list", "write", "delete"],
