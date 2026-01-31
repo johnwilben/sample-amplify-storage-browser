@@ -22,12 +22,12 @@ const backend = defineBackend({
  *
  * Note: Ensure the bucket exists before deploying this code, as it only sets up IAM policies and does not create the S3 bucket.
  */
-const customBucketName = "my-existing-bucket";
+const customBucketName = "palawanpay-test-app-1769841477";
 
 backend.addOutput({
   version: "1.3",
   storage: {
-    aws_region: "us-east-1",
+    aws_region: "ap-southeast-1",
     bucket_name: customBucketName,
     buckets: [
       {
@@ -36,13 +36,10 @@ backend.addOutput({
         aws_region: "us-east-1",
         //@ts-expect-error amplify backend type issue https://github.com/aws-amplify/amplify-backend/issues/2569
         paths: {
-          "public/*": {
+          "*": {
             guest: ["get", "list"],
             authenticated: ["get", "list", "write", "delete"],
           },
-          "admin/*": {
-            groupsadmin: ["get", "list", "write", "delete"],
-            authenticated: ["get", "list", "write", "delete"],
           },
         },
       },
