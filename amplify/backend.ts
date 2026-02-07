@@ -59,52 +59,45 @@ const unauthPolicy = new Policy(backend.stack, "customBucketUnauthPolicy", {
 });
 
 /**
- * Define an inline policy to attach to Amplify's auth role
- * This policy defines how authenticated users can access your existing bucket
- */
-const authPolicy = new Policy(backend.stack, "customBucketAuthPolicy", {
-  statements: [
-    new PolicyStatement({
-      effect: Effect.ALLOW,
-      actions: ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
-      resources: [
-        `arn:aws:s3:::${customBucketName}/*`,
-      ],
-    }),
-    new PolicyStatement({
-      effect: Effect.ALLOW,
-      actions: ["s3:ListBucket"],
-      resources: [
-        `arn:aws:s3:::${customBucketName}`,
-        `arn:aws:s3:::${customBucketName}/*`,
-      ],
-    }),
-  ],
-});
-
-/**
- * Define an inline policy to attach to Admin user role
- * This policy defines how authenticated users can access your existing bucket
+ * Define an inline policy to attach to the admin group role
+ * This policy defines how admin users can access your existing bucket
  */
 const adminPolicy = new Policy(backend.stack, "customBucketAdminPolicy", {
   statements: [
     new PolicyStatement({
       effect: Effect.ALLOW,
       actions: ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
-      resources: [`arn:aws:s3:::${customBucketName}/admin/*`],
+      resources: [
+        `arn:aws:s3:::${customBucketName}/*`,
+      ],
     }),
     new PolicyStatement({
       effect: Effect.ALLOW,
       actions: ["s3:ListBucket"],
       resources: [
         `arn:aws:s3:::${customBucketName}`,
-        `arn:aws:s3:::${customBucketName}/*`,
       ],
-      conditions: {
-        StringLike: {
-          "s3:prefix": ["admin/*", "admin/"],
-        },
-      },
+    }),
+  ],
+});
+
+/**
+ * Define an inline policy to attach to the ReadOnly group role
+ * This policy allows read-only access to your existing bucket
+ */
+const readOnlyPolicy = new Policy(backend.stack, "customBucketReadOnlyPolicy", {
+  statements: [
+    new PolicyStatement({
+      effect: Effect.ALLOW,
+      actions: ["s3:GetObject"],
+      resources: [`arn:aws:s3:::${customBucketName}/*`],
+    }),
+    new PolicyStatement({
+      effect: Effect.ALLOW,
+      actions: ["s3:ListBucket"],
+      resources: [
+        `arn:aws:s3:::${customBucketName}`,
+      ],
     }),
   ],
 });
@@ -114,8 +107,6 @@ backend.auth.resources.unauthenticatedUserIamRole.attachInlinePolicy(
   unauthPolicy
 );
 
-// Add the policies to the authenticated user role
-backend.auth.resources.authenticatedUserIamRole.attachInlinePolicy(authPolicy);
-
-// Add the policies to the admin user role
+// Add the policies to the admin and ReadOnly group roles
 backend.auth.resources.groups["admin"].role.attachInlinePolicy(adminPolicy);
+backend.auth.resources.groups["ReadOnly"].role.attachInlinePolicy(readOnlyPolicy);
