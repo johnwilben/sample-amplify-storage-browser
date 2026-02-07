@@ -107,6 +107,9 @@ backend.auth.resources.unauthenticatedUserIamRole.attachInlinePolicy(
   unauthPolicy
 );
 
-// Add the policies to the admin and ReadOnly group roles
+// Add the policies to the authenticated, admin, and ReadOnly roles
+// - All authenticated users get read-only access
+// - Admin group users get full read/write/delete access
+backend.auth.resources.authenticatedUserIamRole.attachInlinePolicy(readOnlyPolicy);
 backend.auth.resources.groups["admin"].role.attachInlinePolicy(adminPolicy);
 backend.auth.resources.groups["ReadOnly"].role.attachInlinePolicy(readOnlyPolicy);
