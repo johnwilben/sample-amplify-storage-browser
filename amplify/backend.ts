@@ -10,37 +10,30 @@ const backend = defineBackend({
 });
 
 /**
- * Note: This code assumes the existence of an S3 bucket named 'my-existing-bucket'.
- * Replace 'my-existing-bucket' with your actual bucket name and adjust the paths and permissions as needed.
- * For more information on authorization access, visit: https://docs.amplify.aws/react/build-a-backend/storage/authorization/#available-actions
- *
- * Requirements for this sample:
- * 1. An S3 bucket named 'my-existing-bucket' must exist in your AWS account.
- * 2. The bucket should contain two folders:
- *    - 'public/' - Accessible by all authenticated and unauthenticated users.
- *    - 'admin/' - Accessible only by users in the admin group and authenticated users.
- *
- * Note: Ensure the bucket exists before deploying this code, as it only sets up IAM policies and does not create the S3 bucket.
+ * Note: This code assumes the existence of one or more S3 buckets.
+ * Add the names of all buckets you want this app to manage below.
+ * Ensure the buckets already exist in your AWS account.
  */
-const customBucketName = "palawanpay-test-app-1769841477";
+const bucketNames = [
+  "palawanpay-test-app-1769841477",
+  // Add additional bucket names here, e.g. "my-other-bucket-name",
+];
 
 backend.addOutput({
   version: "1.3",
   storage: {
     aws_region: "ap-southeast-1",
-    bucket_name: customBucketName,
-    buckets: [
-      {
-        name: customBucketName,
-        bucket_name: customBucketName,
-        aws_region: "us-east-1",
-        paths: {
-          "*": {
-            authenticated: ["get", "list", "write", "delete"],
-          },
+    bucket_name: bucketNames[0],
+    buckets: bucketNames.map((bucketName) => ({
+      name: bucketName,
+      bucket_name: bucketName,
+      aws_region: "us-east-1",
+      paths: {
+        "*": {
+          authenticated: ["get", "list", "write", "delete"],
         },
       },
-    ],
+    })),
   },
 });
 
@@ -67,16 +60,12 @@ const adminPolicy = new Policy(backend.stack, "customBucketAdminPolicy", {
     new PolicyStatement({
       effect: Effect.ALLOW,
       actions: ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
-      resources: [
-        `arn:aws:s3:::${customBucketName}/*`,
-      ],
+      resources: bucketNames.map((bucketName) => `arn:aws:s3:::${bucketName}/*`),
     }),
     new PolicyStatement({
       effect: Effect.ALLOW,
       actions: ["s3:ListBucket"],
-      resources: [
-        `arn:aws:s3:::${customBucketName}`,
-      ],
+      resources: bucketNames.map((bucketName) => `arn:aws:s3:::${bucketName}`),
     }),
   ],
 });
@@ -90,14 +79,12 @@ const readOnlyPolicy = new Policy(backend.stack, "customBucketReadOnlyPolicy", {
     new PolicyStatement({
       effect: Effect.ALLOW,
       actions: ["s3:GetObject"],
-      resources: [`arn:aws:s3:::${customBucketName}/*`],
+      resources: bucketNames.map((bucketName) => `arn:aws:s3:::${bucketName}/*`),
     }),
     new PolicyStatement({
       effect: Effect.ALLOW,
       actions: ["s3:ListBucket"],
-      resources: [
-        `arn:aws:s3:::${customBucketName}`,
-      ],
+      resources: bucketNames.map((bucketName) => `arn:aws:s3:::${bucketName}`),
     }),
   ],
 });
