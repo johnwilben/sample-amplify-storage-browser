@@ -11,8 +11,9 @@ This template equips you with a foundational React application integrated with A
 - **Authentication**: Setup with Amazon Cognito for secure user authentication with email login.   
    - More info on how to setup and configuration option: https://docs.amplify.aws/react/build-a-backend/auth/set-up-auth/
 - **Storage**: Configured with multiple S3 buckets and granular access controls. The sample is configured with
-  - Default storage bucket with public, admin, and private access paths
-  - Secondary storage bucket with separate backup paths.
+  - Default storage bucket intended for the `primary-team` Cognito group
+  - Secondary storage bucket intended for the `secondary-team` Cognito group
+  - Separate `admin` paths in both buckets for elevated access.
   - More info on how to setup : https://docs.amplify.aws/react/build-a-backend/storage/set-up-storage/#building-your-storage-backend
 - **UI Components**: Pre-integrated Amplify UI React components including:
   - Authenticator for sign-in/sign-up flows
@@ -57,6 +58,19 @@ This template equips you with a foundational React application integrated with A
    ```bash
    npm run dev
    ```
+
+
+## Verifying bucket access by user type
+
+To verify that different users access different buckets:
+
+1. Create Cognito users in different groups (`primary-team`, `secondary-team`, and optionally `admin`).
+2. Sign in as each user and open Storage Browser.
+3. Confirm access behavior:
+   - `primary-team` users can access `primary-team/*` in `myStorageBucket`.
+   - `secondary-team` users can access `secondary-team/*` in `mySecondaryStorageBucket`.
+   - `admin` users can access `admin/*` and `backup_admin/*`.
+4. Attempt cross-bucket access and confirm it is denied by IAM policies generated from the storage rules.
 
 ## Deploying to AWS
 
