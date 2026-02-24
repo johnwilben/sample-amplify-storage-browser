@@ -27,3 +27,13 @@ dist-ssr
 .amplify
 amplify_outputs*
 amplifyconfiguration*
+
+# Environment and configuration files
+.env
+.env.local
+.env.*.local
+config.json
+
+# Temporary files from scripts
+/tmp/
+*.tmp
